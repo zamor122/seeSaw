@@ -1,0 +1,53 @@
+import threading
+import time
+# A variable that contains some data
+iteration = 0
+fredHeight = 1
+wilmaHeight = 7
+fredVelocity = 1
+wilmaVelocity = 1.5
+
+# A semaphore to indicate that an item is available
+increase = threading.Semaphore()
+decrease = threading.Semaphore()
+
+increaseEvent = threading.Event()
+decreaseEvent = threading.Event()
+
+def fred():
+    global iteration
+    global fredHeight
+    global wilmaHeight
+    global fredVelocity
+    global wilmaVelocity
+    while iteration < 9:
+        while fredHeight < 7:
+            increaseEvent.wait()
+            fredHeight += fredVelocity
+            print "Fred is going up, height is: ", fredHeight, "\n"
+            increaseEvent.clear()
+            decreaseEvent.set()
+
+    iteration += 1
+
+
+def wilma():
+    global iteration
+    global fredHeight
+    global wilmaHeight
+    global fredVelocity
+    global wilmaVelocity
+    while iteration < 9:
+        while wilmaHeight > 1:
+            increaseEvent.set()
+            decreaseEvent.wait()
+            wilmaHeight -= fredVelocity
+            print "Wilma is going down, height is: ", wilmaHeight, "\n"
+            decreaseEvent.clear()
+    iteration += 1
+
+
+t1 = threading.Thread(target=fred)
+t1.start()
+t2 = threading.Thread(target=wilma)
+t2.start()
